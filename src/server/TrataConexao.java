@@ -5,6 +5,7 @@
  */
 package server;
 
+import battleship.TiroEnum;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -21,6 +22,8 @@ import util.Status;
  */
 public class TrataConexao implements Runnable {
     
+    private String nome;
+    private Integer pontuação;
     
     @Override
     public void run(){
@@ -83,7 +86,7 @@ public class TrataConexao implements Runnable {
 
                                     if (user.equals("ALUNO") && pass.equals("ESTUDIOSO")) {
                                         reply.setStatus(Status.OK);
-                                        estado = Estados.AUTENTICADO;
+                                        estado = Estados.JOGANDO;
                                     } else {
                                         reply.setStatus(Status.ERROR);
                                     }
@@ -119,27 +122,16 @@ public class TrataConexao implements Runnable {
                                 break;
                         }
                         break;
-                    case AUTENTICADO:
+                    case JOGANDO:
                         switch (operacao) {
-                            case "DIV":
+                            case "RANKING":
                                 try {
-
-                                    Integer op1 = (Integer) m.getParam("op1");
-                                    Integer op2 = (Integer) m.getParam("op2");
-                                    //testar os dados
-                                    reply = new Mensagem("DIVREPLY");
-                                    if (op2 == 0) {
-                                        reply.setStatus(Status.DIVZERO);
-                                    } else {
-                                        reply.setStatus(Status.OK);
-                                        System.out.println("Op1: " + op1 + " Op2: " + op2);
-                                        float div = (float) op1 / op2;
-                                        reply.setParam("res", div);
-                                    }
+                                    String ranking = server.getRanking();
+                                    reply.setParam("ranking", ranking);
+                                    reply.setStatus(Status.OK);
+                                    
                                 } catch (Exception e) {
-                                    reply = new Mensagem("DIVREPLY");
-                                    reply.setStatus(Status.PARAMERROR);
-                                }
+                                    }
                                 break;
                             case "SUB":
                                 break;
@@ -159,6 +151,23 @@ public class TrataConexao implements Runnable {
                             default:
                                 reply.setStatus(Status.ERROR);
                                 reply.setParam("msg", "MENSAGEM NÃO AUTORIZADA OU INVÁLIDA!");
+                                break;
+                        }
+                        break;
+                    case VEZDEJOGAR:
+                        switch(operacao)
+                        {
+                            case "JOGADA":
+                                Integer x = (Integer) m.getParam( "X");
+                                //pegar as coordenadas da msg
+                                ///TiroEnum res = server.fazJogada(  x, y );
+                                
+                                //if( res == TiroEnum.AGUA )
+                               // {
+                                    //perde vez de jogar
+                                    //sorteia o proximo
+                                    //server.sorteiaProximo();
+                                //}
                                 break;
                         }
                         break;
@@ -184,6 +193,14 @@ public class TrataConexao implements Runnable {
             fechaSocket(socket);
         }
 
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public Integer getPontuação() {
+        return pontuação;
     }
     
      private void fechaSocket(Socket s) throws IOException {

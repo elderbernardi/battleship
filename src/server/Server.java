@@ -5,6 +5,7 @@
  */
 package server;
 
+import battleship.Tabuleiro;
 import util.Mensagem;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -41,6 +42,7 @@ public class Server {
     private int cont;
     private List<Thread> threads;
     private List<TrataConexao> clientes;
+    private Tabuleiro tabuleiro;
     /*- Criar o servidor de conexões*/
 
     private void criarServerSocket(int porta) throws IOException {
@@ -48,6 +50,7 @@ public class Server {
         cont = 0;
         threads = new ArrayList<>();
         clientes = new ArrayList<>();
+        tabuleiro = new Tabuleiro();
     }
     
 
@@ -94,16 +97,28 @@ public class Server {
                 Socket socket = this.esperaConexao();//protocolo
                 System.out.println("Cliente conectado.");
                 //Outro processo
-                TrataConexao tarefa = new TrataConexao( socket, this  );
-                Thread th = new Thread( tarefa );
+                TrataConexao jogador = new TrataConexao( socket, this  );
+                Thread th = new Thread( jogador );
                 threads.add(th);
-                clientes.add(tarefa);
+                clientes.add(jogador);
                 
                 th.start();
                 
                
                 System.out.println("Tratando cliente conectado...");
             }
+    
+    }
+
+    public String getRanking() {
+       String ranking = "Ranking da partida \n\n";
+       
+       for( TrataConexao j: clientes)
+       {
+           ranking +=  j.getNome() + " -----> " + j.getPontuação()+"\n";
+       }
+       
+       return ranking;
     
     }
 

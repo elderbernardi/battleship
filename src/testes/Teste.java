@@ -35,7 +35,9 @@ public class Teste {
         {
             for(int j=0; j<10;j++)
             { 
-                t.atirar(i, j);
+                TiroEnum tiro = t.atirar(i, j);
+                System.out.println("Resultado do tiro: " + tiro);
+                System.out.println(t.desenhaTabuleiro());
                 if(t.fimDeJogo()){
                     System.out.println("FIM");
                     j=10;
